@@ -1,0 +1,18 @@
+# 由 "make locks" 生成，请勿手改。来源：requirements.txt 经 pip 解析后的完整冻结版本；
+# 安装时使用本文件（pip install -r requirements.lock），升级依赖后重新执行 make locks 并提交。
+# 注意：numpy / pydantic-core 含平台相关 wheel，更换操作系统/架构后需在该平台重新生成。
+annotated-types==0.8.0
+anyio==4.15.1
+click==8.5.0
+fastapi==0.109.0
+h11==0.16.0
+idna==3.20
+numpy==1.26.3
+packaging==26.3
+pydantic==2.13.5
+pydantic_core==2.46.5
+starlette==0.35.1
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+uvicorn==0.27.0
+websockets==12.0

@@ -9,6 +9,13 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 ACTIVE_CLIENTS = []
 WORKFLOW_ID = 0
+EVENT_LOOP = None  # 主事件循环，工作线程通过它向 WebSocket 协程投递消息
+
+
+@app.on_event("startup")
+def _capture_event_loop():
+    global EVENT_LOOP
+    EVENT_LOOP = asyncio.get_event_loop()
 
 class WorkflowCreate(BaseModel):
     name: str = "data-pipeline"
@@ -105,7 +112,8 @@ def execute_workflow(dag, workers, strategy):
             "completed": completed_flag
         }
         for ws in ACTIVE_CLIENTS:
-            try: asyncio.run_coroutine_threadsafe(ws.send_text(json.dumps(payload)), asyncio.get_event_loop())
+            try:
+                asyncio.run_coroutine_threadsafe(ws.send_text(json.dumps(payload)), EVENT_LOOP)
             except: pass
         time.sleep(0.3)
 

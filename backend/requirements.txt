@@ -1,3 +1,7 @@
+# 直接依赖声明（只写顶层包）。
+# 实际安装使用完整锁定文件 requirements.lock（含全部传递依赖的确定版本）：
+#   make install / make dev / make build 都会自动按 requirements.lock 安装
+# 升级这里的版本后，执行 `make locks` 重新冻结并提交 requirements.lock。
 fastapi==0.109.0
 uvicorn==0.27.0
 numpy==1.26.3

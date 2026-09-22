@@ -59,9 +59,16 @@ jspm_packages/
 # =========================
 # Lock files
 # =========================
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# 注意：package-lock.json 与 backend/requirements.lock 必须提交，
+# 用于保证所有人按相同版本安装（不要忽略）。
+# yarn.lock
+# pnpm-lock.yaml
+
+# =========================
+# 本项目本地开发流程产生的中间产物
+# =========================
+.dev-cache/
+logs/run/
 
 # =========================
 # Build / Cache / Output
