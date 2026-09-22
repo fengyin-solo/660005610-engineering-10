@@ -1,5 +1,6 @@
 import asyncio, time, random, json, threading
 from collections import defaultdict, deque
+from contextlib import suppress
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -9,6 +10,13 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 ACTIVE_CLIENTS = []
 WORKFLOW_ID = 0
+# uvicorn 主事件循环；执行工作流的后台线程需通过它向 WebSocket 线程安全推送
+MAIN_LOOP = None
+
+@app.on_event("startup")
+def _capture_main_loop():
+    global MAIN_LOOP
+    MAIN_LOOP = asyncio.get_event_loop()
 
 class WorkflowCreate(BaseModel):
     name: str = "data-pipeline"
@@ -104,9 +112,14 @@ def execute_workflow(dag, workers, strategy):
             "circuitBreakers": [{"taskId": k, **v} for k, v in cb_state.items()],
             "completed": completed_flag
         }
-        for ws in ACTIVE_CLIENTS:
-            try: asyncio.run_coroutine_threadsafe(ws.send_text(json.dumps(payload)), asyncio.get_event_loop())
-            except: pass
+        for ws in list(ACTIVE_CLIENTS):
+            # 必须在主事件循环上调度协程，不能在工作线程里调用 asyncio.get_event_loop()
+            if MAIN_LOOP is not None and MAIN_LOOP.is_running():
+                try:
+                    asyncio.run_coroutine_threadsafe(ws.send_text(json.dumps(payload)), MAIN_LOOP)
+                except RuntimeError:
+                    with suppress(ValueError):
+                        ACTIVE_CLIENTS.remove(ws)
         time.sleep(0.3)
 
     while ready or running_tasks:
@@ -179,6 +192,12 @@ async def ws_endpoint(ws: WebSocket):
     await ws.accept()
     ACTIVE_CLIENTS.append(ws)
     try:
-        while True: await ws.receive_text()
-    except:
-        if ws in ACTIVE_CLIENTS: ACTIVE_CLIENTS.remove(ws)
+        while True:
+            await ws.receive_text()
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    finally:
+        with suppress(ValueError):
+            ACTIVE_CLIENTS.remove(ws)

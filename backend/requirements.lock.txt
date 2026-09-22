@@ -1,0 +1,18 @@
+# 由 requirements.txt 全量解析生成（含传递依赖），用于复现安装。
+# 重新生成：scripts/dev.sh lock-backend（或 pip install -r requirements.txt 后 pip freeze）。
+# 仅锁定版本不锁定 wheel hash，以同时兼容 Linux/macOS 与 arm64/x86_64；pip 按当前平台选择 wheel。
+annotated-types==0.8.0
+anyio==4.15.1
+click==8.5.0
+fastapi==0.109.0
+h11==0.16.0
+idna==3.20
+numpy==1.26.3
+packaging==26.3
+pydantic==2.13.5
+pydantic_core==2.46.5
+starlette==0.35.1
+typing-inspection==0.4.4
+typing_extensions==4.16.0
+uvicorn==0.27.0
+websockets==12.0

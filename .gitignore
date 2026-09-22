@@ -59,7 +59,7 @@ jspm_packages/
 # =========================
 # Lock files
 # =========================
-package-lock.json
+# 依赖锁文件需要提交，保证所有人按锁定版本安装；仅忽略不使用的包管理器锁文件
 yarn.lock
 pnpm-lock.yaml
 
@@ -79,6 +79,8 @@ temp/
 .eslintcache
 .stylelintcache
 .parcel-cache/
+# 本地开发编排脚本（scripts/dev.sh）的缓存与运行时目录
+/.dev/
 .turbo/
 .next/
 .nuxt/
